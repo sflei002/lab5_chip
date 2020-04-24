@@ -3,8 +3,7 @@
  *	Lab Section:
  *	Assignment: Lab #5  Exercise #2
  *	Exercise Description: [optional - include for your own benefit]
- *    DEMO:https://drive.google.com/open?id=1OUI4dX
-
+ *
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
  */
@@ -30,15 +29,15 @@ void Tick(){
 				state = wait;
 				break;
 			}
-			else if(A_1 && !A_0){
+			if(A_1 && !A_0){
 				state = dec;
 				break;
 			}
-			else if(!A_1 && A_0){
+			if(!A_1 && A_0){
                                 state = inc;
                                 break;
                         }
-			else if(A_1 && A_0){
+			if(A_1 && A_0){
                                 state = reset;
                                 break;
                         }
@@ -51,11 +50,11 @@ void Tick(){
                                 state = inc;
                                 break;
                         }
-			else if(!A_1 && !A_0){
+			if(!A_1 && !A_0){
                                 state = inc_2;
                                 break;
                         }
-                        else if(A_1 && A_0){
+                        if(A_1 && A_0){
                                 state = reset;
                                 break;
                         }
@@ -68,11 +67,11 @@ void Tick(){
                                 state = dec;
                                 break;
                         }
-                        else if(!A_1 && !A_0){
+                        if(!A_1 && !A_0){
                                 state = dec_2;
                                 break;
                         }
-                        else if(A_1 && A_0){
+                        if(A_1 && A_0){
                                 state = reset;
                                 break;
                         }
