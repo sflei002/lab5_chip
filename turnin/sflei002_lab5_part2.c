@@ -12,139 +12,328 @@
 #include "simAVRHeader.h"
 #endif
 
-enum States {init, wait, inc, dec, inc_2, dec_2, reset, reset_2} state;
-unsigned char A_0 = 0x00;
-unsigned char A_1 = 0x00;
 
-void Tick(){
-        A_0 = ~PINA & 0x01;
-        A_1 = ~PINA & 0x02;
 
-        switch(state){
-                case init:
-                        state = init;
-                        break;
-                case wait:
-                        if(!A_1 && !A_0){
-                                state = wait;
-                                break;
-                        }
-                        if(A_1 && !A_0){
-                                state = dec;
-                                break;
-                        }
-                        if(!A_1 && A_0){
-                                state = inc;
-                                break;
-                        }
-                        if(A_1 && A_0){
-                                state = reset;
-                                break;
-                        }
-                case inc:
-                        if(PORTC >= 9){
-                                state = wait;
-                                break;
-                        }
-                        if(!A_1 && A_0){
-                                state = inc;
-                                break;
-                        }
-                        if(!A_1 && !A_0){
-				PORTC = PORTC + 1;
-                                state = inc_2;
-                                break;
-                        }
-                        if(A_1 && A_0){
-                                state = reset;
-                                break;
-                        }
-                case dec:
-                        if(PORTC <= 0){
-                                state = wait;
-                                break;
-                        }
-                        if(A_1 && !A_0){
-                                state = dec;
-                                break;
-                        }
-                        if(!A_1 && !A_0){
-                                state = dec_2;
-				PORTC = PORTC -1;
-                                break;
-                        }
-                        if(A_1 && A_0){
-                                state = reset;
-                                break;
-                        }
-                case inc_2:
-                        break;
+enum SM1_States { SM1_Start, SM1_1, SM1_2, SM1_3, SM1_4, SM1_5 } SM1_State;
 
-                case dec_2:
-                        break;
+void Tick();
 
-		 case reset:
-                        if(A_1 && A_0){
-                                state = reset;
-                                break;
-                        }
-                        if(!A_1 && !A_0){
-                                state = reset_2;
-                                break;
-                        }
 
-                case reset_2:
-                        break;
-
-                default:
-                        state = init;
-                        break;
-
-        }
-
-        switch(state){
-                case init:
-                        PORTC = 0x07;
-                        state = wait;
-                        break;
-
-                case wait:
-                        break;
-
-                case inc:
-                        break;
-
-                case dec:
-                        break;
-
-                case inc_2:
-                        state = wait;
-                        break;
-
-                case dec_2:
-                        state = wait;
-                        break;
-
-                case reset:
-                        break;
-
-                case reset_2:
-                        PORTC = 0x00;
-                        state = wait;
-                        break;
-        }
-}
 
 int main(void){
-        DDRA = 0x00;
-        PORTA = 0xFF;
-        DDRC = 0xFF;
-        PORTC = 0x00;
-        state = init;
 
-        while(1){
-                Tick();
-        }
-        return 1;
+	DDRA = 0x00;
+
+	PORTA = 0xFF;
+
+	DDRC = 0xFF; 
+
+	PORTC = 0x00;
+
+	SM1_State = SM1_Start;
+
+
+
+	while(1){
+
+		Tick();
+
 }
 
+}
+
+
+
+void Tick(){
+
+  switch(SM1_State) {   // Transitions
+
+
+
+     case SM1_Start:
+
+        SM1_State = SM1_1;
+
+        break;
+
+
+
+     case SM1_1:
+
+        if ((~PINA & 0x0F) == 0x00) {
+
+		SM1_State = SM1_1;
+
+        }
+
+	if ((~PINA & 0x01) == 0x01) {
+
+                SM1_State = SM1_2;
+
+		if(PORTC < 0x09){
+
+                PORTC = PORTC + 1;
+
+		}
+
+		else{
+
+			PORTC = 0x09;
+
+		}
+
+	}
+
+        if ((~PINA & 0x02) == 0x02) {
+
+		SM1_State = SM1_3;
+
+		if(PORTC > 0x00){
+
+                PORTC = PORTC - 1;
+
+                }
+
+                else{
+
+                        PORTC = 0x00;
+
+                }
+
+        }
+
+	if ((~PINA & 0x03) == 0x03) {
+
+                SM1_State = SM1_5;
+
+		PORTC = 0x00;
+
+	}
+
+        break;
+
+
+
+     case SM1_2:
+
+        if ((~PINA & 0x0F) == 0x00) {
+
+                SM1_State = SM1_4;
+
+        }
+
+        if ((~PINA & 0x01) == 0x01) {
+
+                SM1_State = SM1_2;
+
+        }
+
+        if ((~PINA & 0x03) == 0x03) {
+
+                SM1_State = SM1_5;
+
+		PORTC = 0x00;
+
+        }
+
+        break;
+
+
+
+	case SM1_3:
+
+        if ((~PINA & 0x0F) == 0x00) {
+
+                SM1_State = SM1_4;
+
+        }
+
+        if ((~PINA & 0x02) == 0x02) {
+
+                SM1_State = SM1_3;
+
+        }
+
+        if ((~PINA & 0x03) == 0x03) {
+
+                SM1_State = SM1_5;
+
+		PORTC = 0x00;
+
+        }
+
+        break;
+
+
+
+	case SM1_4:
+
+        if ((~PINA & 0x0F) == 0x00) {
+
+                SM1_State = SM1_4;
+
+        }
+
+        if ((~PINA & 0x01) == 0x01) {
+
+                SM1_State = SM1_2;
+
+                if(PORTC < 0x09){
+
+                PORTC = PORTC + 1;
+
+                }
+
+                else{
+
+                        PORTC = 0x09;
+
+                }
+
+        }
+
+        if ((~PINA & 0x02) == 0x02) {
+
+                SM1_State = SM1_3;
+
+                if(PORTC > 0x00){
+
+                PORTC = PORTC - 1;
+
+                }
+
+                else{
+
+                        PORTC = 0x00;
+
+                }
+
+        }
+
+        if ((~PINA & 0x03) == 0x03) {
+
+                SM1_State = SM1_5;
+
+		PORTC = 0x00;
+
+        }
+
+        break;
+
+
+
+	case SM1_5:
+
+	if ((~PINA & 0x0F) == 0x00) {
+
+                SM1_State = SM1_4;
+
+        }
+
+        if ((~PINA & 0x01) == 0x01) {
+
+                SM1_State = SM1_2;
+
+                if(PORTC < 0x09){
+
+                PORTC = PORTC + 1;
+
+                }
+
+                else{
+
+                        PORTC = 0x09;
+
+                }
+
+        }
+
+        if ((~PINA & 0x02) == 0x02) {
+
+                SM1_State = SM1_3;
+
+                if(PORTC > 0x00){
+
+                PORTC = PORTC - 1;
+
+                }
+
+                else{
+
+                        PORTC = 0x00;
+
+                }
+
+        }
+
+        if ((~PINA & 0x03) == 0x03) {
+
+                SM1_State = SM1_5;
+
+		PORTC = 0x00;
+
+        }
+
+        break;
+
+
+
+     default:
+
+        SM1_State = SM1_Start;
+
+        break;
+
+  } // Transitions
+
+
+
+  switch(SM1_State) {   // State actions
+
+     case SM1_Start:
+
+        PORTC = 0;
+
+        break;
+
+
+
+     case SM1_1:
+
+	PORTC = 0x00;
+
+        break;
+
+
+
+     case SM1_2:
+
+        break;
+
+
+
+     case SM1_3:
+
+        break;
+
+
+
+     case SM1_4:
+
+        break;
+
+
+
+     case SM1_5:
+
+	break;
+
+
+
+     default:
+
+        break;
+
+   } // State actions
+
+}
