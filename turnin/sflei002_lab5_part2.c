@@ -103,7 +103,7 @@ void Tick(){
 
 	switch(state){
 		case init:
-			PORTC = 0x07;
+			PORTC = 0x01;
 			state = wait;
 			break;
 
